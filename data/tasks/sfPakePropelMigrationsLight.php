@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of the sfPropelMigrationsLightPlugin package.
+ * This file is part of the nfPropelMigrationsLightPlugin package.
+ * Originally part of the sfPropelMigrationsLightPlugin package.
  * (c) 2006-2008 Martin Kreidenweis <sf@kreidenweis.com>
  *
  * For the full copyright and license information, please view the LICENSE
@@ -14,7 +15,6 @@
  * @package    symfony
  * @subpackage plugin
  * @author     Martin Kreidenweis <sf@kreidenweis.com>
- * @version    SVN: $Id: sfPakePropelMigrationsLight.php 10226 2008-07-11 18:38:16Z Kris.Wallsmith $
  */
 
 pake_desc('creates a new migration class file');

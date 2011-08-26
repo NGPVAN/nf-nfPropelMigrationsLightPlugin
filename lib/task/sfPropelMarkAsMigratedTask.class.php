@@ -1,8 +1,8 @@
 <?php
 
 /*
- * This file is part of the sfPropelMigrationsLightPlugin package.
- * (c) 2006-2008 Martin Kreidenweis <sf@kreidenweis.com>
+ * This file is part of the nfPropelMigrationsLightPlugin package.
+ * (c) 2011 Graham Christensen <gchristensen@nationalfield.org>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,10 +11,9 @@
 /**
  * A symfony 1.1 port for the pake migrate task.
  *
- * @package     sfPropelMigrationsLightPlugin
+ * @package     nfPropelMigrationsLightPlugin
  * @subpackage  task
- * @author      Martin Kreidenweis <sf@kreidenweis.com>
- * @version     SVN: $Id: sfPropelMigrateTask.class.php 19757 2009-06-30 21:03:05Z exien $
+ * @author      Graham Christensen <gchristensen@nationalfield.org>
  */
 class sfPropelMarkAsMigratedTask extends sfPropelBaseTask
 {

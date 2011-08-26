@@ -14,31 +14,37 @@
   <name>Andrei Dziahel</name>
   <user>develop7</user>
   <email>trickster2k4@gmail.com</email>
-  <active>yes</active>
+  <active>no</active>
  </contributor>
  <contributor>
   <name>Kris Wallsmith</name>
   <user>Kris.Wallsmith</user>
   <email>kris.wallsmith@gmail.com</email>
-  <active>yes</active>
+  <active>no</active>
  </contributor>
  <contributor>
   <name>Stefan Koopmanschap</name>
   <user>Stefan.Koopmanschap</user>
   <email>stefan.koopmanschap@symfony-project.com</email>
-  <active>yes</active>
+  <active>no</active>
  </contributor>
  <contributor>
   <name>Seb Dangerfield</name>
   <user>sebsecond2</user>
   <email>seb.dangerfield@second2.com</email>
+  <active>no</active>
+ </contributor>
+ <contributor>
+  <name>Graham Christensen</name>
+  <user>gchristensen</user>
+  <email>gchristensen@nationalfield.org</email>
   <active>yes</active>
  </contributor>
- <date>2010-11-17</date>
- <time>15:14:43</time>
+ <date>2011-08-26</date>
+ <time>14:57:00</time>
  <version>
-  <release>1.1.4</release>
-  <api>1.1.2</api>
+  <release>2.0.0</release>
+  <api>2.0.0</api>
  </version>
  <stability>
   <release>stable</release>
@@ -50,13 +56,13 @@
  </notes>
  <contents>
   <dir name="/">
-   <file md5sum="cf6d1d96f022ba874f6d5b6e43af84bd" name="lib/task/sfPropelInitMigrationTask.class.php" role="data"/>
-   <file md5sum="688c5f3152f268eee55004b06b25f84b" name="lib/task/sfPropelMigrateTask.class.php" role="data"/>
-   <file md5sum="2a9e462a61ac212dd79afbf315471c9d" name="lib/sfMigrator.class.php" role="data"/>
-   <file md5sum="d88b4e8ac814c689e047385c165b40b6" name="lib/sfMigration.class.php" role="data"/>
-   <file md5sum="93dbf37bb918852dcf24ec71d5aa5200" name="data/tasks/sfPakePropelMigrationsLight.php" role="data"/>
-   <file md5sum="e91c7acc4dd5a8801c92732b6e3bf230" name="LICENSE" role="data"/>
-   <file md5sum="c9f76f9df3de7e5ed4ca9e8fdf552c90" name="README" role="data"/>
+   <file name="lib/task/sfPropelInitMigrationTask.class.php" role="data"/>
+   <file name="lib/task/sfPropelMigrateTask.class.php" role="data"/>
+   <file name="lib/sfMigrator.class.php" role="data"/>
+   <file name="lib/sfMigration.class.php" role="data"/>
+   <file name="data/tasks/sfPakePropelMigrationsLight.php" role="data"/>
+   <file name="LICENSE" role="data"/>
+   <file name="README" role="data"/>
   </dir>
  </contents>
  <dependencies>
@@ -74,18 +80,20 @@
  <changelog>
   <release>
    <version>
-    <release>1.1.4</release>
-    <api>1.1.2</api>
+    <release>2.0.0</release>
+    <api>2.0.0</api>
    </version>
    <stability>
     <release>stable</release>
     <api>stable</api>
    </stability>
-   <date>2010-11-17</date>
+   <date>2011-08-26</date>
    <notes>
-* Changed package.xml to include symfony 1.4 in the supported versions
-* Bug fix
-* Removed need to pass an application parameter to the migrate task (this is now optional)
+       * Migrations are now based on timestamps instead of sequential numbers.
+       * Migrations do not need to be sequential
+       * schema_info stores each migration run. If a migration hasn't been run and you migrate down, it won't run its down. If you have migrations A, B, and C, and have run C, A and B will be run.
+       * The first migration is no longer special.
+       * Created the task `propel:mark-as-migrated` which will insert each existing migration into the database. This is useful for creating fresh databases based on the schema and fixtures, so you don't run the migrations against the already up to date schema.
    </notes>
   </release>
  </changelog>

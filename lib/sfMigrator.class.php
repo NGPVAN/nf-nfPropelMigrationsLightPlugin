@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of the sfPropelMigrationsLightPlugin package.
+ * This file is part of the nfPropelMigrationsLightPlugin package.
+ * Originally part of the sfPropelMigrationsLightPlugin package.
  * (c) 2006-2008 Martin Kreidenweis <sf@kreidenweis.com>
  *
  * For the full copyright and license information, please view the LICENSE
@@ -13,8 +14,8 @@
  *
  * @package    symfony
  * @subpackage plugin
+ * @author     Graham Christensen <gchristensen@nationalfield.org>
  * @author     Martin Kreidenweis <sf@kreidenweis.com>
- * @version    SVN: $Id: sfMigrator.class.php 21782 2009-09-08 12:49:32Z Kris.Wallsmith $
  */
 class sfMigrator
 {
@@ -446,54 +447,5 @@ EOF;
     }
 
     ksort($this->migrations);
-  }
-
-  /**
-   * Auto generate logic for the first migration.
-   *
-   * @param   string $name
-   * @param   string $newVersion
-   * @param   string $upLogic
-   * @param   string $downLogic
-   */
-  protected function generateFirstMigrationLogic($name, $newVersion, & $upLogic, & $downLogic)
-  {
-    $sqlFiles = sfFinder::type('file')->name('*.sql')->in(sfConfig::get('sf_root_dir').'/data/sql');
-    if ($sqlFiles)
-    {
-      // use propel sql files for the up logic
-      $sql = '';
-      foreach ($sqlFiles as $sqlFile)
-      {
-        $sql .= file_get_contents($sqlFile);
-      }
-      file_put_contents($this->getMigrationsDir().DIRECTORY_SEPARATOR.$newVersion.'_'.$name.'.sql', $sql);
-      $upLogic .= sprintf('$this->loadSql(dirname(__FILE__).\'/%s_%s.sql\');', $newVersion, $name);
-
-      // drop tables for down logic
-      $downLines = array();
-
-      // disable mysql foreign key checks
-      if (false !== $fkChecks = strpos($sql, 'FOREIGN_KEY_CHECKS'))
-      {
-        $downLines[] = '$this->executeSQL(\'SET FOREIGN_KEY_CHECKS=0\');';
-        $downLines[] = '';
-      }
-
-      preg_match_all('/DROP TABLE IF EXISTS `(\w+)`;/', $sql, $matches);
-      foreach ($matches[1] as $match)
-      {
-        $downLines[] = sprintf('$this->executeSQL(\'DROP TABLE %s\');', $match);
-      }
-
-      // enable mysql foreign key checks
-      if (false !== $fkChecks)
-      {
-        $downLines[] = '';
-        $downLines[] = '$this->executeSQL(\'SET FOREIGN_KEY_CHECKS=1\');';
-      }
-
-      $downLogic .= join("\n    ", $downLines);
-    }
   }
 }
