@@ -99,18 +99,13 @@ class sfMigrator
 
     $sourceVersion = $this->getCurrentVersion();
 
-    // do appropriate stuff according to migration direction
-    if ($destVersion == $sourceVersion)
+    if ($destVersion < $sourceVersion)
     {
-      return 0;
-    }
-    elseif ($destVersion < $sourceVersion)
-    {
-      $res = $this->migrateDown($sourceVersion, $destVersion);
+      $res = $this->migrateDown($destVersion);
     }
     else
     {
-      $res = $this->migrateUp($sourceVersion, $destVersion);
+      $res = $this->migrateUp($destVersion);
     }
 
     return $res;
@@ -126,25 +121,16 @@ class sfMigrator
   public function generateMigration($name)
   {
     // calculate version number for new migration
-    $maxVersion = sprintf('%03d', $this->getMaxVersion());
-    $newVersion = sprintf('%03d', $maxVersion + 1);
+    $newVersion = date('YmdHis');
 
     // sanitize name
     $name = preg_replace('/[^a-zA-Z0-9]/', '_', $name);
-
-    $upLogic = '';
-    $downLogic = '';
-
-    if ('001' == $newVersion)
-    {
-      $this->generateFirstMigrationLogic($name, $newVersion, $upLogic, $downLogic);
-    }
 
     $newClass = <<<EOF
 <?php
 
 /**
- * Migrations between versions $maxVersion and $newVersion.
+ * Migration up to version $newVersion
  */
 class Migration$newVersion extends sfMigration
 {
@@ -153,15 +139,13 @@ class Migration$newVersion extends sfMigration
    */
   public function up()
   {
-    $upLogic
   }
 
   /**
-   * Migrate down to version $maxVersion.
+   * Migrate down from version $newVersion.
    */
   public function down()
   {
-    $downLogic
   }
 }
 
@@ -197,9 +181,7 @@ EOF;
    */
   public function getMaxVersion()
   {
-    $count = count($this->migrations);
-
-    return $count ? $this->getMigrationNumberFromFile($this->migrations[$count - 1]) : 0;
+    return max(array_keys($this->migrations));
   }
 
   /**
@@ -214,7 +196,7 @@ EOF;
   {
     try
     {
-      $result = $this->executeQuery('SELECT version FROM schema_info');
+      $result = $this->executeQuery('SELECT version FROM schema_info ORDER BY version DESC');
       if ($result instanceof PDOStatement)
       {
         $currentVersion = $result->fetchColumn(0);
@@ -234,7 +216,7 @@ EOF;
     catch (Exception $e)
     {
       // assume no schema_info table exists yet so we create it
-      $this->executeUpdate('CREATE TABLE schema_info (version INTEGER)');
+      $this->executeUpdate('CREATE TABLE schema_info (version BIGINT)');
 
       // and insert the version record as 0
       $this->executeUpdate('INSERT INTO schema_info (version) VALUES (0)');
@@ -253,7 +235,7 @@ EOF;
    */
   public function getMigrationNumberFromFile($file)
   {
-    $number = substr(basename($file), 0, 3);
+    $number = (int)basename($file);
 
     if (!ctype_digit($number))
     {
@@ -284,9 +266,53 @@ EOF;
   }
 
   /**
+   * Mark a migration as executed or not executed.
+   *
+   * @param integer $version
+   * @param boolean $executed Whether or not a migration has been executed
+   */
+  public function markMigration($version, $executed = true)
+  {
+      if ($executed) {
+          $this->executeQuery('INSERT IGNORE INTO schema_info (version) VALUES (' . (int) $version . ');');
+      } else {
+          $this->executeQuery('DELETE FROM schema_info WHERE version = "' . (int) $version . '"');
+      }
+  }
+
+  /**
+   * Retrieve all migration versions after $version which have been executed
+   *
+   * @param int $version The version you want to base it from
+   * @return array(int)
+   */
+  public function getMigrationsExecutedAfter($version)
+  {
+      $r = $this->executeQuery('SELECT version FROM schema_info WHERE version > ' . (int)$version);
+      return $r->fetchAll(PDO::FETCH_COLUMN);
+  }
+
+  /**
+   * Get all the migrations before $version which have not been run
+   *
+   * @param int $version The version you want to go up to
+   * @return array(int)
+   */
+  public function getMigrationsToRunUpTo($version)
+  {
+      $migrations = array_keys($this->migrations);
+
+      $r = $this->executeQuery('SELECT version FROM schema_info WHERE version <= ' . (int)$version);
+      $executedMigrations = $r->fetchAll(PDO::FETCH_COLUMN);
+
+      return array_diff($migrations, $executedMigrations);
+  }
+
+  /**
    * Write the given version as current version to the database.
    *
    * @param integer $version New current version
+   * @deprecated Use markMigration instead
    */
   protected function setCurrentVersion($version)
   {
@@ -296,29 +322,29 @@ EOF;
   }
 
   /**
-   * Migrate down, from version $from to version $to.
+   * Migrate down to version $to.
    *
-   * @param   integer $from
    * @param   integer $to
-   *
    * @return  integer Number of executed migrations
    */
-  protected function migrateDown($from, $to)
+  protected function migrateDown($to)
   {
     $con = Propel::getConnection();
     $counter = 0;
 
+    $migrations = $this->getMigrationsExecutedAfter($to);
+
     // iterate over all needed migrations
-    for ($i = $from; $i > $to; $i--)
+    foreach ($migrations as $version)
     {
       try
       {
         $con instanceof PropelPDO ? $con->beginTransaction() : $con->begin();
 
-        $migration = $this->getMigrationObject($i);
+        $migration = $this->getMigrationObject($version);
         $migration->down();
 
-        $this->setCurrentVersion($i-1);
+        $this->markMigration($version, false);
 
         $con->commit();
       }
@@ -335,28 +361,27 @@ EOF;
   }
 
   /**
-   * Migrate up, from version $from to version $to.
+   * Migrate up to version $to.
    *
-   * @param   integer $from
    * @param   integer $to
    * @return  integer Number of executed migrations
    */
-  protected function migrateUp($from, $to)
+  protected function migrateUp($to)
   {
     $con = Propel::getConnection();
     $counter = 0;
 
-    // iterate over all needed migrations
-    for ($i = $from + 1; $i <= $to; $i++)
+    $migrations = $this->getMigrationsToRunUpTo($to);
+    foreach ($migrations as $version)
     {
       try
       {
         $con instanceof PropelPDO ? $con->beginTransaction() : $con->begin();
 
-        $migration = $this->getMigrationObject($i);
+        $migration = $this->getMigrationObject($version);
         $migration->up();
 
-        $this->setCurrentVersion($i);
+        $this->markMigration($version, true);
 
         $con->commit();
       }
@@ -399,7 +424,7 @@ EOF;
    */
   protected function getMigrationFileName($version)
   {
-    return $this->migrations[$version-1];
+    return $this->migrations[$version];
   }
 
   /**
@@ -407,25 +432,20 @@ EOF;
    */
   protected function loadMigrations()
   {
-    $this->migrations = sfFinder::type('file')->name('/^\d{3}.*\.php$/')->maxdepth(0)->in($this->getMigrationsDir());
+    $migrations = sfFinder::type('file')->name('/^\d.*\.php$/')->maxdepth(0)->in($this->getMigrationsDir());
 
-    sort($this->migrations);
+    $this->migrations = array();
+    foreach ($migrations as $migration) {
+        $number = (int)basename($migration);
 
-    if (count($this->migrations) > 0)
-    {
-      $minVersion = $this->getMinVersion();
-      $maxVersion = $this->getMaxVersion();
+        if (isset($this->migrations[$number])) {
+            throw new DuplicateMigrationException('Migration ' . $migration . ' conflicts with ' . $this->migrations[$number]);
+        }
 
-      if (1 != $minVersion)
-      {
-        throw new sfInitializationException('First migration is not migration 1. Some migration files may be missing.');
-      }
-
-      if (($maxVersion - $minVersion + 1) != count($this->migrations))
-      {
-        throw new sfInitializationException('Migration count unexpected. Migration files may be missing. Migration numbers must be unique.');
-      }
+        $this->migrations[$number] = $migration;
     }
+
+    ksort($this->migrations);
   }
 
   /**
