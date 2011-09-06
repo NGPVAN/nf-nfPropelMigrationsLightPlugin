@@ -303,23 +303,18 @@ EOF;
   {
       $migrations = array_keys($this->migrations);
 
+      $migrations = array_filter($migrations, function ($number) use ($version) {
+          if ($number <= $version) {
+              return true;
+          } else {
+              return false;
+          }
+      });
+
       $r = $this->executeQuery('SELECT version FROM schema_info WHERE version <= ' . (int)$version);
       $executedMigrations = $r->fetchAll(PDO::FETCH_COLUMN);
 
       return array_diff($migrations, $executedMigrations);
-  }
-
-  /**
-   * Write the given version as current version to the database.
-   *
-   * @param integer $version New current version
-   * @deprecated Use markMigration instead
-   */
-  protected function setCurrentVersion($version)
-  {
-    $version = (int) $version;
-
-    $this->executeUpdate("UPDATE schema_info SET version = $version");
   }
 
   /**
