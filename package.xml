@@ -61,7 +61,6 @@
    <file name="lib/task/sfPropelMigrateTask.class.php" role="data"/>
    <file name="lib/sfMigrator.class.php" role="data"/>
    <file name="lib/sfMigration.class.php" role="data"/>
-   <file name="data/tasks/sfPakePropelMigrationsLight.php" role="data"/>
    <file name="LICENSE" role="data"/>
    <file name="README" role="data"/>
   </dir>
