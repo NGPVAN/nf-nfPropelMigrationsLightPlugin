@@ -26,7 +26,7 @@ abstract class sfMigration
    * Constructor.
    *
    * @param sfMigrator $migrator        The migrator instance calling this migration
-   * @param integer    $migrationNumber The DB version the migration (up) will migrate to
+   * @param double     $migrationNumber The DB version the migration (up) will migrate to
    */
   public function __construct(sfMigrator $migrator, $migrationNumber)
   {
@@ -57,13 +57,13 @@ abstract class sfMigration
   /**
    * Get the migration number of this migration.
    *
-   * @param   boolean $formatted If true the result is a zero-padded string, otherwise an integer is returned
+   * @param   boolean $formatted If true the result is a zero-padded string, otherwise a double is returned
    *
    * @return  mixed
    */
   protected function getMigrationNumber($formatted = true)
   {
-    return $formatted ? sprintf('%03d', $this->migrationNumber) : (int) $this->migrationNumber;
+    return (double)$this->migrationNumber;
   }
 
   /**
@@ -71,7 +71,7 @@ abstract class sfMigration
    *
    * @param   string $sql the SQL code to execute
    *
-   * @return  integer Number of affected rows
+   * @return  double Number of affected rows
    */
   protected function executeSQL($sql)
   {
@@ -82,7 +82,7 @@ abstract class sfMigration
    * Execute a SQL query.
    *
    * @param   string $sql The SQL statement.
-   * @param   integer $fetchmode
+   * @param   double $fetchmode
    *
    * @return  mixed
    */
