@@ -31,7 +31,7 @@ class sfMigrator
    *
    * @param   string $sql
    *
-   * @return  integer
+   * @return  double
    */
   static public function executeUpdate($sql)
   {
@@ -76,10 +76,10 @@ class sfMigrator
   /**
    * Execute migrations.
    *
-   * @param   integer $destVersion  Version number to migrate to, defaults to
+   * @param   double $destVersion  Version number to migrate to, defaults to
    *                                the max existing
    *
-   * @return  integer Number of executed migrations
+   * @return  double Number of executed migrations
    */
   public function migrate($destVersion = null)
   {
@@ -90,7 +90,7 @@ class sfMigrator
     }
     else
     {
-      $destVersion = (int) $destVersion;
+      $destVersion = (double) $destVersion;
 
       if (($destVersion > $maxVersion) || ($destVersion < 0))
       {
@@ -170,7 +170,7 @@ EOF;
   }
 
   /**
-   * @return integer The lowest migration that exists
+   * @return double The lowest migration that exists
    */
   public function getMinVersion()
   {
@@ -178,7 +178,7 @@ EOF;
   }
 
   /**
-   * @return integer The highest existing migration that exists
+   * @return double The highest existing migration that exists
    */
   public function getMaxVersion()
   {
@@ -191,7 +191,7 @@ EOF;
    * If no schema version is currently stored in the database, one is created
    * and initialized with 0.
    *
-   * @return integer
+   * @return double
    */
   public function getCurrentVersion()
   {
@@ -232,11 +232,11 @@ EOF;
    *
    * @param   string $file The filename to look at
    *
-   * @return  integer
+   * @return  double
    */
   public function getMigrationNumberFromFile($file)
   {
-    $number = (int)basename($file);
+    $number = (double)basename($file);
 
     if (!ctype_digit($number))
     {
@@ -269,35 +269,35 @@ EOF;
   /**
    * Mark a migration as executed or not executed.
    *
-   * @param integer $version
+   * @param double $version
    * @param boolean $executed Whether or not a migration has been executed
    */
   public function markMigration($version, $executed = true)
   {
       if ($executed) {
-          $this->executeQuery('INSERT IGNORE INTO schema_info (version) VALUES (' . (int) $version . ');');
+          $this->executeQuery('INSERT IGNORE INTO schema_info (version) VALUES (' . (double) $version . ');');
       } else {
-          $this->executeQuery('DELETE FROM schema_info WHERE version = "' . (int) $version . '"');
+          $this->executeQuery('DELETE FROM schema_info WHERE version = "' . (double) $version . '"');
       }
   }
 
   /**
    * Retrieve all migration versions after $version which have been executed
    *
-   * @param int $version The version you want to base it from
-   * @return array(int)
+   * @param double $version The version you want to base it from
+   * @return array(double)
    */
   public function getMigrationsExecutedAfter($version)
   {
-      $r = $this->executeQuery('SELECT version FROM schema_info WHERE version > ' . (int)$version);
+      $r = $this->executeQuery('SELECT version FROM schema_info WHERE version > ' . (double)$version);
       return $r->fetchAll(PDO::FETCH_COLUMN);
   }
 
   /**
    * Get all the migrations before $version which have not been run
    *
-   * @param int $version The version you want to go up to
-   * @return array(int)
+   * @param double $version The version you want to go up to
+   * @return array(double)
    */
   public function getMigrationsToRunUpTo($version)
   {
@@ -311,7 +311,7 @@ EOF;
           }
       });
 
-      $r = $this->executeQuery('SELECT version FROM schema_info WHERE version <= ' . (int)$version);
+      $r = $this->executeQuery('SELECT version FROM schema_info WHERE version <= ' . (double)$version);
       $executedMigrations = $r->fetchAll(PDO::FETCH_COLUMN);
 
       return array_diff($migrations, $executedMigrations);
@@ -320,8 +320,8 @@ EOF;
   /**
    * Migrate down to version $to.
    *
-   * @param   integer $to
-   * @return  integer Number of executed migrations
+   * @param   double $to
+   * @return  double Number of executed migrations
    */
   protected function migrateDown($to)
   {
@@ -359,8 +359,8 @@ EOF;
   /**
    * Migrate up to version $to.
    *
-   * @param   integer $to
-   * @return  integer Number of executed migrations
+   * @param   double $to
+   * @return  double Number of executed migrations
    */
   protected function migrateUp($to)
   {
@@ -396,7 +396,7 @@ EOF;
   /**
    * Get the migration object for the given version.
    *
-   * @param   integer $version
+   * @param   double $version
    *
    * @return  sfMigration
    */
@@ -414,7 +414,7 @@ EOF;
   /**
    * Version to filename.
    *
-   * @param   integer $version
+   * @param   double $version
    *
    * @return  string Filename
    */
@@ -432,7 +432,7 @@ EOF;
 
     $this->migrations = array();
     foreach ($migrations as $migration) {
-        $number = (int)basename($migration);
+        $number = (double)basename($migration);
 
         if (isset($this->migrations[$number])) {
             throw new DuplicateMigrationException('Migration ' . $migration . ' conflicts with ' . $this->migrations[$number]);
