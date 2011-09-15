@@ -44,7 +44,7 @@
  <date>2011-08-26</date>
  <time>14:57:00</time>
  <version>
-  <release>2.0.0</release>
+  <release>2.0.1</release>
   <api>2.0.0</api>
  </version>
  <stability>
@@ -81,15 +81,16 @@
  <changelog>
   <release>
    <version>
-    <release>2.0.0</release>
+    <release>2.0.1</release>
     <api>2.0.0</api>
    </version>
    <stability>
     <release>stable</release>
     <api>stable</api>
    </stability>
-   <date>2011-08-26</date>
+   <date>2011-09-15</date>
    <notes>
+       * Now converts numbers to double, instead of integers.
        * Migrations are now based on timestamps instead of sequential numbers.
        * Migrations do not need to be sequential
        * schema_info stores each migration run. If a migration hasn't been run and you migrate down, it won't run its down. If you have migrations A, B, and C, and have run C, A and B will be run.
