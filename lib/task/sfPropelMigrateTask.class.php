@@ -50,7 +50,7 @@ class sfPropelMigrateTask extends sfPropelBaseTask
 
     if (isset($arguments['schema-version']) && ctype_digit($arguments['schema-version']))
     {
-      $runMigrationsCount = $migrator->migrate((int) $arguments['schema-version']);
+      $runMigrationsCount = $migrator->migrate((double) $arguments['schema-version']);
     }
     else
     {
