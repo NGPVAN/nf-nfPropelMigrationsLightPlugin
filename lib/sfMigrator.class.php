@@ -238,8 +238,7 @@ EOF;
   {
     $number = (double)basename($file);
 
-    if (!ctype_digit($number))
-    {
+    if (!$number) {
       throw new sfParseException('Migration filename could not be parsed.');
     }
 
