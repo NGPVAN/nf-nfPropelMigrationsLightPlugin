@@ -35,6 +35,34 @@ abstract class sfMigration
   }
 
   /**
+   * Retrieve a generic index on a column, will only return indexes
+   * on a single column
+   * 
+   * @return array(String)
+   */
+  public function getIndexesForColumn($table, $colName)
+  {
+    $sql = sprintf('SHOW INDEX IN %s WHERE column_name = "%s"', $table, $colName);
+    $stmt = $this->executeQuery($sql, PDO::FETCH_ASSOC);
+    $indexDesc = $stmt->fetchAll();
+    $indexes = array();
+    foreach($indexDesc as $row) {
+      if(!isset($indexes[$row['Key_name']])) {
+        $indexes[$row['Key_name']] = 0;
+      }
+      $indexes[$row['Key_name']]++;
+    }
+    $singleIndexes = array();
+    foreach($indexes as $keyName => $columns) {
+      if($columns == 1) {
+        $singleIndexes[] = $keyName;
+      }
+    }
+    
+    return $singleIndexes;
+  }
+  
+  /**
    * Get the migrator instance that called this migration.
    *
    * @return sfMigrator
