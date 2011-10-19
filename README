@@ -79,7 +79,7 @@ Then, in {{{Migration042::up()}}} you'd write {{{$this->loadFixtures();}}} at so
 
 == Changelog ==
 
-=== 2011-26-08 | 2.0.0 (Graham Christensen) ===
+=== 2011-26-08 | 2.0.0 (Tom Christ) ===
 
  * Added getIndexesForColumn() method to sfMigration to programmatically determine the index symbol name on a column
 
