@@ -91,10 +91,9 @@ class sfMigrator
     else
     {
       $destVersion = (double) $destVersion;
-
       if (($destVersion > $maxVersion) || ($destVersion < 0))
       {
-        throw new sfException(sprintf('Migration %d does not exist.', $destVersion));
+        throw new sfException(sprintf('Migration %.0f does not exist.', $destVersion));
       }
     }
 
@@ -437,7 +436,7 @@ EOF;
             throw new DuplicateMigrationException('Migration ' . $migration . ' conflicts with ' . $this->migrations[$number]);
         }
 
-        $this->migrations[$number] = $migration;
+        $this->migrations["$number"] = $migration;
     }
 
     ksort($this->migrations);
