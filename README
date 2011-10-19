@@ -81,6 +81,10 @@ Then, in {{{Migration042::up()}}} you'd write {{{$this->loadFixtures();}}} at so
 
 === 2011-26-08 | 2.0.0 (Graham Christensen) ===
 
+ * Added getIndexesForColumn() method to sfMigration to programmatically determine the index symbol name on a column
+
+=== 2011-26-08 | 2.0.0 (Graham Christensen) ===
+
  * Migrations are now based on timestamps instead of sequential numbers.
  * Migrations do not need to be sequential
  * schema_info stores each migration run. If a migration hasn't been run and you migrate down, it won't run its down. If you have migrations A, B, and C, and have run C, A and B will be run.

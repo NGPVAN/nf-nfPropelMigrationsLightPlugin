@@ -38,6 +38,8 @@ abstract class sfMigration
    * Retrieve a generic index on a column, will only return indexes
    * on a single column
    * 
+   * This will only work for MySQL
+   * 
    * @return array(String)
    */
   public function getIndexesForColumn($table, $colName)
