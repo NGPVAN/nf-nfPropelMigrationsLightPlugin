@@ -65,6 +65,26 @@ abstract class sfMigration
   }
   
   /**
+   * Returns the foreign key symbol on a column if available, false otherwise
+   * 
+   * @param $table
+   * @param $colName
+   * @return bool|string
+   */
+  public function getForeignKeyForColumn($table, $colName)
+  {
+    $sql = sprintf('SHOW CREATE TABLE %s', $table);
+    $stmt = $this->executeQuery($sql, PDO::FETCH_ASSOC);
+    $tableDesc = $stmt->fetchAll();
+    $createStatement = $tableDesc[0]['Create Table'];
+
+    $regex = "/(CONSTRAINT `)(.*)(` FOREIGN KEY \(`$colName`\) REFERENCES)/";
+    preg_match($regex, $createStatement, $matches);
+    
+    return empty($matches) ? false : $matches[2];
+  }
+  
+  /**
    * Get the migrator instance that called this migration.
    *
    * @return sfMigrator
