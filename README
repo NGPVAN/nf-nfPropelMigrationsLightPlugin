@@ -79,6 +79,10 @@ Then, in {{{Migration042::up()}}} you'd write {{{$this->loadFixtures();}}} at so
 
 == Changelog ==
 
+=== 2012-14-08 | 2.0.0 (Graham Christensen) ===
+
+ * Removed the --application parameter to allow the migrations to run while the application is locked
+
 === 2011-28-10 | 2.0.0 (Tom Christ) ===
 
  * Added getForeignKeyForColumn() method to sfMigration to programmatically determine the foreign key symbol name on a column
